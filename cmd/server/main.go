@@ -10,7 +10,8 @@ import (
 )
 
 func main() {
-	logm.MustInit(logm.PresetAuto()...)
+	logm.MustInit(logm.PresetAuto())
+	defer func() { _ = logm.Close() }()
 
 	if err := app.Command.Run(context.Background(), os.Args); err != nil {
 		slog.Error("应用程序运行失败", "error", err)

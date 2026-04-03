@@ -1,14 +1,12 @@
 # 配置示例文件, 复制此文件为 config.yaml 并根据需要修改
 
-# 服务端配置
 server:
-  addr: ":8080" # 服务器监听地址
-  docs: "docs/.vitepress/dist" # VitePress 文档目录路径
-  timeout: 15s # HTTP 读写超时
-  idletime: 1m0s # HTTP 空闲超时
+  addr: ":8080"
+  docs: "docs/.vitepress/dist"
+  timeout: 15s
+  idletime: 1m0s
 
-# 客户端配置
 client:
-  url: "http://localhost:8080" # 服务器地址
-  timeout: 30s # 请求超时时间
-  retries: 3 # 重试次数
+  url: "http://localhost:8080"
+  timeout: 30s
+  retries: 3

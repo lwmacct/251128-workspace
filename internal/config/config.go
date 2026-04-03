@@ -12,23 +12,23 @@ import (
 
 // Config 应用配置
 type Config struct {
-	Server ServerConfig `koanf:"server" comment:"服务端配置"`
-	Client ClientConfig `koanf:"client" comment:"客户端配置"`
+	Server ServerConfig `json:"server" comment:"服务端配置"`
+	Client ClientConfig `json:"client" comment:"客户端配置"`
 }
 
 // ServerConfig 服务端配置
 type ServerConfig struct {
-	Addr     string        `koanf:"addr" comment:"服务器监听地址"`
-	Docs     string        `koanf:"docs" comment:"VitePress 文档目录路径"`
-	Timeout  time.Duration `koanf:"timeout" comment:"HTTP 读写超时"`
-	Idletime time.Duration `koanf:"idletime" comment:"HTTP 空闲超时"`
+	Addr     string        `json:"addr" comment:"服务器监听地址"`
+	Docs     string        `json:"docs" comment:"VitePress 文档目录路径"`
+	Timeout  time.Duration `json:"timeout" comment:"HTTP 读写超时"`
+	Idletime time.Duration `json:"idletime" comment:"HTTP 空闲超时"`
 }
 
 // ClientConfig 客户端配置
 type ClientConfig struct {
-	URL     string        `koanf:"url" comment:"服务器地址"`
-	Timeout time.Duration `koanf:"timeout" comment:"请求超时时间"`
-	Retries int           `koanf:"retries" comment:"重试次数"`
+	URL     string        `json:"url" comment:"服务器地址"`
+	Timeout time.Duration `json:"timeout" comment:"请求超时时间"`
+	Retries int           `json:"retries" comment:"重试次数"`
 }
 
 // DefaultConfig 返回默认配置
