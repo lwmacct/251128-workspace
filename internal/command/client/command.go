@@ -15,9 +15,11 @@ import (
 	"github.com/lwmacct/251207-go-pkg-version/pkg/version"
 	"github.com/urfave/cli/v3"
 
-	"github.com/lwmacct/251128-workspace/internal/command"
 	"github.com/lwmacct/251128-workspace/internal/config"
 )
+
+// dc 默认配置 - 单一来源 (Single Source of Truth)
+var dc = config.DefaultConfig()
 
 // Command 客户端命令
 var Command = &cli.Command{
@@ -27,19 +29,19 @@ var Command = &cli.Command{
 	Commands: []*cli.Command{version.Command, healthCommand, getCommand},
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:    "client-url",
+			Name:    "url",
 			Aliases: []string{"s"},
-			Value:   command.Defaults.Client.URL,
+			Value:   dc.Client.URL,
 			Usage:   "服务器地址",
 		},
 		&cli.DurationFlag{
-			Name:  "client-timeout",
-			Value: command.Defaults.Client.Timeout,
+			Name:  "timeout",
+			Value: dc.Client.Timeout,
 			Usage: "请求超时时间",
 		},
 		&cli.IntFlag{
-			Name:  "client-retries",
-			Value: command.Defaults.Client.Retries,
+			Name:  "retries",
+			Value: dc.Client.Retries,
 			Usage: "重试次数",
 		},
 	},

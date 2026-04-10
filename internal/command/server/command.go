@@ -15,9 +15,11 @@ import (
 	"github.com/lwmacct/251207-go-pkg-version/pkg/version"
 	"github.com/urfave/cli/v3"
 
-	"github.com/lwmacct/251128-workspace/internal/command"
 	"github.com/lwmacct/251128-workspace/internal/config"
 )
+
+// dc 默认配置 - 单一来源 (Single Source of Truth)
+var dc = config.DefaultConfig()
 
 // Command 服务器命令
 var Command = &cli.Command{
@@ -27,24 +29,24 @@ var Command = &cli.Command{
 	Commands: []*cli.Command{version.Command},
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:    "server-addr",
+			Name:    "addr",
 			Aliases: []string{"a"},
-			Value:   command.Defaults.Server.Addr,
+			Value:   dc.Server.Addr,
 			Usage:   "服务器监听地址",
 		},
 		&cli.StringFlag{
-			Name:  "server-docs",
-			Value: command.Defaults.Server.Docs,
+			Name:  "docs",
+			Value: dc.Server.Docs,
 			Usage: "VitePress 文档目录路径",
 		},
 		&cli.DurationFlag{
-			Name:  "server-timeout",
-			Value: command.Defaults.Server.Timeout,
+			Name:  "timeout",
+			Value: dc.Server.Timeout,
 			Usage: "HTTP 读写超时",
 		},
 		&cli.DurationFlag{
-			Name:  "server-idletime",
-			Value: command.Defaults.Server.Idletime,
+			Name:  "idletime",
+			Value: dc.Server.Idletime,
 			Usage: "HTTP 空闲超时",
 		},
 	},
