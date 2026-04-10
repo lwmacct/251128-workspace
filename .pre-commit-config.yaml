@@ -1,0 +1,24 @@
+# Pre-commit hooks configuration
+# See https://pre-commit.com for more information
+
+# 全局配置
+default_stages: [pre-commit]
+fail_fast: true # 发现第一个错误即停止
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-yaml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=512"]
+
+  - repo: https://github.com/lwmacct/251211-pre-commit
+    rev: v1.0.2
+    hooks:
+      - id: prettier
+      - id: mc-mdtoc
+      - id: build-docs
+      - id: golangci-lint
+      - id: config-sync

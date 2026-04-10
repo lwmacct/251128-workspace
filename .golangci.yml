@@ -1,0 +1,69 @@
+version: "2"
+
+linters:
+  default: all
+  disable:
+    # 过于严格/不适用
+    - depguard # 需要配置依赖白名单
+    - wrapcheck # 要求所有错误都 wrap
+    - exhaustruct # 要求所有字段都初始化
+    - ireturn # 禁止返回接口
+    - varnamelen # 变量名长度限制
+    - nlreturn # return 前必须空行
+    - wsl_v5 # 空行规则过严
+    - funlen # 函数长度限制
+    - gocognit # 认知复杂度
+    - cyclop # 圈复杂度
+    - lll # 行长度限制
+    - godox # 禁止 TODO/FIXME
+    - godot # 注释句号结尾
+    - mnd # magic number
+    - err113 # 错误定义规则过严
+    - gochecknoglobals # 禁止全局变量
+    - gochecknoinits # 禁止 init 函数
+    - noinlineerr # 禁止内联错误处理
+    - paralleltest # 要求 t.Parallel()
+    - testpackage # 要求 _test 包
+    # 特定框架
+    - arangolint # ArangoDB
+    - ginkgolinter # Ginkgo
+    - zerologlint # zerolog
+    - loggercheck # logger 检查
+    - spancheck # OpenTelemetry
+    - promlinter # Prometheus
+    - protogetter # protobuf
+    - gosmopolitan # i18n
+    # 已弃用
+    - wsl
+    # 注释要求过严
+    - revive # 与 staticcheck 重复，规则过严
+    - errname # 错误命名规则
+    - goprintffuncname # printf 函数命名
+    # 不合理的优化
+    - tagalign # struct tag 对齐, 负优化
+    - tagliatelle # JSON tag 使用 snake_case 以兼容 OpenAI/Anthropic/Gemini API
+    - goconst # 协议适配和测试中的字符串字面量是合理的
+
+  settings:
+    govet:
+      enable-all: true
+      disable:
+        - fieldalignment
+    misspell:
+      locale: US
+    nakedret:
+      max-func-lines: 30
+    gocritic: {}
+    exhaustive:
+      default-signifies-exhaustive: true
+    nestif:
+      min-complexity: 3 # JSON 解析等场景允许适度嵌套
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
