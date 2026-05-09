@@ -1,4 +1,6 @@
-# 本地环境
+# .gitignore
+
+# 运行环境
 **/.DS_Store
 **/.local/
 **/.venv/
@@ -16,6 +18,9 @@
 **/*.vsix
 [0-9]*-
 
+# 生成文件
+gen/
+
 # 临时文件
 **/*.bak
 **/*.log
@@ -31,9 +36,6 @@ logs/**
 temp/**
 cache/**
 
-# 生成文件
-gen/
-
 # secret files
 .env
 .env.*
@@ -41,5 +43,4 @@ gen/
 config/config.yaml
 
 # AI tools
-.claude
 .playwright-mcp
