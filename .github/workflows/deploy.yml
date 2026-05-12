@@ -1,5 +1,8 @@
 name: docker
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   push:
     tags:
@@ -8,17 +11,121 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  meta:
     runs-on: ubuntu-latest
+    outputs:
+      app_version: ${{ steps.meta.outputs.app_version }}
+      git_commit: ${{ steps.meta.outputs.git_commit }}
+      build_time: ${{ steps.meta.outputs.build_time }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Resolve build metadata
+        id: meta
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            APP_VERSION="${GITHUB_REF_NAME}"
+          else
+            APP_VERSION="$(git rev-parse --short HEAD)"
+          fi
+          GIT_COMMIT="$(git rev-parse --short HEAD)"
+          BUILD_TIME="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+
+          {
+            echo "app_version=${APP_VERSION}"
+            echo "git_commit=${GIT_COMMIT}"
+            echo "build_time=${BUILD_TIME}"
+          } >> "${GITHUB_OUTPUT}"
+
+  build-backend:
+    runs-on: ubuntu-latest
+    needs: meta
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: false
+
+      - name: Restore Go modules and build cache
+        id: go-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-${{ runner.arch }}-go-${{ hashFiles('go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-go-
+
+      - name: Download Go dependencies
+        run: go mod download
+
+      - name: Build backend binary
+        env:
+          APP_VERSION: ${{ needs.meta.outputs.app_version }}
+          GIT_COMMIT: ${{ needs.meta.outputs.git_commit }}
+          BUILD_TIME: ${{ needs.meta.outputs.build_time }}
+        run: |
+          mkdir -p bin
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+          go build -trimpath -ldflags="-s -w \
+          -X github.com/lwmacct/251207-go-pkg-version/pkg/version.AppVersion=${APP_VERSION} \
+          -X github.com/lwmacct/251207-go-pkg-version/pkg/version.GitCommit=${GIT_COMMIT} \
+          -X github.com/lwmacct/251207-go-pkg-version/pkg/version.BuildTime=${BUILD_TIME}" \
+          -o bin/app .
+
+      - name: Upload backend binary
+        uses: actions/upload-artifact@v7
+        with:
+          name: backend-bin
+          path: bin
+          if-no-files-found: error
+
+      - name: Warm Go cache on main after non-exact cache hit
+        if: startsWith(github.ref, 'refs/tags/') && steps.go-cache.outputs.cache-hit != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run go-cache-warm.yml --ref main
+
+  build-image:
+    runs-on: ubuntu-latest
+    needs:
+      - meta
+      - build-backend
     permissions:
       contents: read
       packages: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+
+      - name: Download backend binary
+        uses: actions/download-artifact@v8
+        with:
+          name: backend-bin
+          path: .artifacts/backend
+
+      - name: Prepare image inputs
+        shell: bash
+        run: |
+          rm -rf bin
+          mkdir -p bin
+          BACKEND_APP="$(find .artifacts/backend -type f -name app -print -quit)"
+          test -n "${BACKEND_APP}"
+          install -m 0755 "${BACKEND_APP}" bin/app
+          test -x bin/app
 
       - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Login to GHCR
         if: startsWith(github.ref, 'refs/tags/')
@@ -28,19 +135,32 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push image
+      - name: Build image for verification
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
         uses: docker/build-push-action@v6
         with:
           context: .
           file: .github/docker/Dockerfile
-          push: ${{ startsWith(github.ref, 'refs/tags/') }}
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: ghcr.io/${{ github.repository }}:build-${{ needs.meta.outputs.git_commit }}
+
+      - name: Build and push release image
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .github/docker/Dockerfile
+          push: true
+          cache-from: type=gha
           tags: |
             ghcr.io/${{ github.repository }}:${{ github.ref_name }}
             ghcr.io/${{ github.repository }}:latest
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-image
     if: startsWith(github.ref, 'refs/tags/')
     steps:
       - name: 执行远程 SSH 命令
