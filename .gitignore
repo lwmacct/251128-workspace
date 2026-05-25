@@ -12,10 +12,11 @@
 **/tsconfig.tsbuildinfo
 
 # 构建输出
-**/bin/
-**/dist/
-**/build/
-**/*.vsix
+bin-*
+bin/
+dist/
+build/
+*.vsix
 [0-9]*-
 
 # 生成文件
