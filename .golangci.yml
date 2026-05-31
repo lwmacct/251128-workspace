@@ -35,6 +35,7 @@ linters:
     - gosmopolitan # i18n
     # 已弃用
     - wsl
+    - gomodguard
     # 注释要求过严
     - revive # 与 staticcheck 重复，规则过严
     - errname # 错误命名规则
