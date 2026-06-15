@@ -45,3 +45,7 @@ config/config.yaml
 
 # AI tools
 .playwright-mcp
+
+# Go workspace
+go.work
+go.work.sum
