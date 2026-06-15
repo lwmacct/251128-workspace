@@ -60,10 +60,17 @@ linters:
     nestif:
       min-complexity: 3 # JSON 解析等场景允许适度嵌套
 
+  exclusions:
+    paths:
+      - node_modules
+
 formatters:
   enable:
     - gofmt
     - goimports
+  exclusions:
+    paths:
+      - node_modules
 
 issues:
   max-issues-per-linter: 0
