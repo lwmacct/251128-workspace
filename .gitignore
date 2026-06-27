@@ -51,3 +51,6 @@ config/config.yaml
 # Go workspace
 go.work
 go.work.sum
+
+# local frontend workspace
+vite.local.ts
