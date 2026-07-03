@@ -21,6 +21,6 @@ includes:
     taskfile: https://{{.TASK_REMOTE}}/.task/git.yml?ref=main
     optional: true
 
-  cmd:
-    taskfile: .task/cmd.yml
+  ci:
+    taskfile: .task/ci.yml
     optional: true
