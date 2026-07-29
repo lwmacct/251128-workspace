@@ -9,7 +9,7 @@
 
 # node_modules
 **/node_modules/
-**/tsconfig.tsbuildinfo
+**/*.tsbuildinfo
 
 # 构建输出
 bin-*
